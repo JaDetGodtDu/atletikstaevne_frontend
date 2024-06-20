@@ -135,6 +135,8 @@ export default function ContestantTable() {
             <div>
                 <button onClick={openCreateForm}>Opret</button>
             </div>
+            {/* MANGLER SØGE FUNKTIONALITET ! */}
+            {/* MANGLER FILTRERING / SORTERING ! */}
             <Modal isOpen={isFormOpen} onRequestClose={closeModal} contentLabel="Contestant Form" className="modal" overlayClassName="overlay">
         <form onSubmit={handleSubmit}>
           <input 
