@@ -43,12 +43,16 @@ async function handleContestant(contestant: Contestant):Promise<Contestant> {
     }
 }
 
-async function deleteContestant(id: number):Promise<string> {
+async function deleteContestant(id: number):Promise<void> {
     try{
         const options = makeOptions('DELETE', {});
         const response = await fetch(`${API_URL}/contestant/${id}`, options);
-        const data = await response.json();
-        return data;
+
+        if(!response.ok){
+            throw new Error('${response.statusText}');
+        }
+        // const data = await response.json();
+        // return data;
     } catch (error){
         console.error(error);
         throw error;

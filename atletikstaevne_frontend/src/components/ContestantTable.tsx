@@ -1,11 +1,16 @@
 import {useEffect, useState} from 'react';
 import { getAllContestants, getContestantById, handleContestant, deleteContestant as apiDeleteContestant } from '../services/api/contestantApi';
 import { Contestant } from '../models/Contestant';
+import { getAllDisciplines } from '../services/api/disciplineApi';
+import { Discipline } from '../models/Discipline';
 import Modal from 'react-modal';
+import Select from 'react-select';
 
 Modal.setAppElement('#root');
 
 export default function ContestantTable() {
+    const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+
     const [contestants, setContestants] = useState<Contestant[]>([]);
     const [formContestant, setFormContestant] = useState<Contestant>({ id: 0, name: "", age: 0, club:'',sex:'', disciplines: []});
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -27,12 +32,30 @@ export default function ContestantTable() {
           }
         };
         fetchContestants();
+        const fetchDisciplines = async () => {
+            try {
+                const data = await getAllDisciplines();
+                setDisciplines(data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchDisciplines();
       }, []);
 
     const getContestant = async (id: number) => {
         try {
           const contestant = await getContestantById(id);
-          setFormContestant(contestant);
+        //   setFormContestant(contestant);
+            setFormContestant({
+            ...contestant,
+            disciplines: contestant.disciplines.map(d => ({
+                id: d.id,
+                name: d.name,
+                resultType: d.resultType
+            }))
+        });
+
           setCreating(false);
           setIsFormOpen(true);
         } catch (error) {
@@ -67,16 +90,16 @@ export default function ContestantTable() {
       };
     
       const confirmDeleteContestant = async () => {
-        if (contestantToDelete) {           
-          try {
-            await apiDeleteContestant(contestantToDelete.id);
-            setContestants(contestants.filter((contestant) => contestant.id !== contestantToDelete.id));
-          } catch (error) {
-            console.error(error);
-          } finally {
-            setIsDeleteConfirmOpen(false);
-            setContestantToDelete(null);
-          }
+        if (contestantToDelete) {
+            try {
+                await apiDeleteContestant(contestantToDelete.id);
+                setContestants(contestants.filter((contestant) => contestant.id !== contestantToDelete.id));
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsDeleteConfirmOpen(false);
+                setContestantToDelete(null);
+            }
         }
       };
     
@@ -142,11 +165,18 @@ export default function ContestantTable() {
                 required
             />
             {/* TILFØJ DISCIPLINER HER ! */}
+            <Select
+                isMulti
+                options={disciplines.map(d => ({ value: d.id, label: d.name,resultType:d.resultType }))}
+                value={formContestant.disciplines.map(d => ({ value: d.id, label: d.name,resultType:d.resultType }))}
+                onChange={(selected) => setFormContestant({ ...formContestant, disciplines: selected.map(s => ({ id: s.value, name: s.label, resultType:s.resultType })) })}
+                placeholder="Vælg discipliner"
+            />
           <br />
           <button type="button" onClick={closeModal}>
-            Cancel
+            Afbryd
           </button>
-          <button type="submit">{creating ? "Create" : "Update"} Contestant</button>
+          <button type="submit">{creating ? "Opret" : "Opdater"} Deltager</button>
         </form>
       </Modal>
       <Modal
@@ -171,7 +201,7 @@ export default function ContestantTable() {
                 <thead>
                     <tr>
                         <th>Id</th>
-                        <th>Name</th>
+                        <th>Navn</th>
                         <th>Alder</th>
                         <th>Klub</th>
                         <th>Køn</th>
