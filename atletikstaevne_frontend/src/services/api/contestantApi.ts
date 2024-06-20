@@ -51,8 +51,7 @@ async function deleteContestant(id: number):Promise<void> {
         if(!response.ok){
             throw new Error('${response.statusText}');
         }
-        // const data = await response.json();
-        // return data;
+        
     } catch (error){
         console.error(error);
         throw error;

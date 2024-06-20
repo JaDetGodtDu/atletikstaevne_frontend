@@ -187,11 +187,12 @@ export default function ContestantTable() {
         overlayClassName="overlay"
       >
         <p>Er du sikker på at du vil slette denne deltager?</p>
+        <p>{contestantToDelete?.name}</p>
         <button type="button" onClick={confirmDeleteContestant}>
-          Yes
+          Ja
         </button>
         <button type="button" onClick={cancelDelete}>
-          No
+          Nej
         </button>
       </Modal>
       {loading ? (
