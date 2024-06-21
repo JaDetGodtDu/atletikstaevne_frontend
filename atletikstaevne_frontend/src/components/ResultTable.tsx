@@ -144,6 +144,7 @@ export default function ResultTable() {
             <div>
                 <button onClick={openCreateForm}>Opret Resultat</button>
             </div>
+            <br />
             <Modal isOpen={isFormOpen} onRequestClose={closeModal} contentLabel="Result Form" className="modal" overlayClassName="overlay">
                 <form onSubmit={handleSubmit}>
                     <input

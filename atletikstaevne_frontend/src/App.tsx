@@ -1,6 +1,5 @@
 import Buttons from './components/Buttons'
 import { useState } from 'react'
-import './App.css'
 import ContestantTable from './components/ContestantTable';
 import ResultTable from './components/ResultTable';
 
@@ -22,7 +21,8 @@ export default function App() {
       <div>
         {selectedView === 'home' && (
           <div className='home'>
-            <h2>Home</h2>
+            <h2>Hjem</h2>
+            <h3>Velkommen til Atletikstævne-håndterings platformen</h3>
           </div>
         )}
       </div>
