@@ -2,6 +2,7 @@ import Buttons from './components/Buttons'
 import { useState } from 'react'
 import './App.css'
 import ContestantTable from './components/ContestantTable';
+import ResultTable from './components/ResultTable';
 
 
 export default function App() {
@@ -29,6 +30,13 @@ export default function App() {
         {selectedView === 'contestants' && (
           <div className='contestants'>
             <ContestantTable />
+          </div>
+        )}
+      </div>
+      <div>
+        {selectedView === 'results' && (
+          <div className='results'>
+            <ResultTable />
           </div>
         )}
       </div>

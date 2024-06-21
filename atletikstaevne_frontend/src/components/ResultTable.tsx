@@ -10,6 +10,7 @@ import Modal from 'react-modal';
 Modal.setAppElement('#root');
 
 export default function ResultTable() {
+    console.log('ResultTable');
     const [disciplines, setDisciplines] = useState<Discipline[]>([]);
     const [results, setResults] = useState<Result[]>([]);
     const [formResult, setFormResult] = useState<Result>({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age:0, sex:"", disciplines:[] }, date: new Date() });
@@ -78,7 +79,7 @@ export default function ResultTable() {
     }
 
     const openDeleteConfirm = (result: Result) => {
-        setFormResult(result);
+        setResultToDelete(result);
         setIsDeleteConfirmOpen(true);
     }
      
@@ -161,7 +162,15 @@ export default function ResultTable() {
                     <Select
                         options={disciplines.map(d => ({ value: d.id, label: d.name }))}
                         value={disciplines.filter(d => d.id === formResult.discipline.id).map(d => ({ value: d.id, label: d.name }))}
-                        onChange={(selectedOption) => setFormResult({ ...formResult, discipline: disciplines.find(d => d.id === selectedOption.value) || formResult.discipline })}
+                        // onChange={(selectedOption) => setFormResult({ ...formResult, discipline: disciplines.find(d => d.id === selectedOption.value) || formResult.discipline })}
+                        onChange={(selectedOption) => {
+                            if (selectedOption) {
+                                const discipline = disciplines.find(d => d.id === selectedOption.value);
+                                if (discipline) {
+                                    setFormResult({ ...formResult, discipline });
+                                }
+                            }
+                        }}
                         placeholder="Vælg disciplin"
                         required
                     />
