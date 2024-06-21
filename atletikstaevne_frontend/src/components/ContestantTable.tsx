@@ -131,9 +131,9 @@ export default function ContestantTable() {
 
     return (
         <div>
-            <h2>Contestants</h2>
+            <h2>Deltagere</h2>
             <div>
-                <button onClick={openCreateForm}>Opret</button>
+                <button onClick={openCreateForm}>Opret Deltager</button>
             </div>
             {/* MANGLER SØGE FUNKTIONALITET ! */}
             {/* MANGLER FILTRERING / SORTERING ! */}

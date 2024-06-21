@@ -56,9 +56,6 @@ body {
   background-color: rgba(0, 0, 0, 0.75);
 }
 
-.adminBoatTable {
-  margin-top: 25px;
-}
 table {
   width: 50%;
   border-collapse: collapse;
