@@ -27,14 +27,19 @@ export default function ResultTable() {
             setLoading(true);
           try {
             const data = await getAllResults();
-            setResults(data);
+
+            const parsedData = data.map((result:Result)=> ({
+                ...result,
+                date: new Date(result.date),
+            }));
+
+            setResults(parsedData);
           } catch (error) {
             console.error(error);
           } finally {
             setLoading(false);
           }
         }
-        fetchResults();
         const fetchDisciplines = async () => {
             try {
                 const data = await getAllDisciplines();
@@ -43,6 +48,7 @@ export default function ResultTable() {
                 console.error(error);
             }
         }
+        fetchResults();
         fetchDisciplines();
     }, []);
 
@@ -50,7 +56,10 @@ export default function ResultTable() {
         try {
           const result = await getResultById(id);
 
-          setFormResult(result);
+          setFormResult({
+            ...result,
+            date: new Date(result.date),
+          });
           setCreating(false);
           setIsFormOpen(true);
         } catch (error) {
@@ -104,10 +113,16 @@ export default function ResultTable() {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
+        const preparedResult = {
+            ...formResult,
+            date: formResult.date instanceof Date ? formResult.date : new Date(formResult.date),
+        }
+
         if(creating){
-            createResult(formResult);
+            createResult(preparedResult);
         } else {
-            updateResult(formResult.id, formResult);
+            updateResult(preparedResult.id, preparedResult);
         }
         setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age:0, sex:"", disciplines:[] }, date: new Date() });
     }
@@ -148,12 +163,17 @@ export default function ResultTable() {
                     <input
                         type="date"
                         placeholder='Dato'
-                        value={formResult.date.toISOString().split('T')[0]}
+                        // value={formResult.date.toISOString().split('T')[0]}
+                        value={
+                            formResult.date instanceof Date
+                                ? formResult.date.toISOString().split('T')[0]
+                                : new Date().toISOString().split('T')[0] // Fallback to today's date if date is invalid
+                        }
                         onChange={(e) => setFormResult({ ...formResult, date: new Date(e.target.value) })}
                         required
                     />
                     <input
-                        type="number"
+                        type="text"
                         placeholder="Deltager ID"
                         value={formResult.contestant.id}
                         onChange={(e) => setFormResult({ ...formResult, contestant: { ...formResult.contestant, id: parseInt(e.target.value) } })}
@@ -217,7 +237,13 @@ export default function ResultTable() {
                                 <td>{result.id}</td>
                                 <td>{result.resultValue}</td>
                                 <td>{result.resultType}</td>
-                                <td>{result.date.toISOString().split('T')[0]}</td>
+                                {/* <td>{result.date.toISOString().split('T')[0]}</td> */}
+                                <td>
+                                    {result.date instanceof Date
+                                        ? result.date.toISOString().split('T')[0]
+                                        : new Date().toISOString().split('T')[0]
+                                    }
+                                </td>
                                 <td>{result.contestant.id}</td>
                                 <td>{result.discipline.name}</td>
                                 <td>
