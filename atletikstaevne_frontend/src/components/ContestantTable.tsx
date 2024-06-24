@@ -5,6 +5,8 @@ import { getAllDisciplines } from '../services/api/disciplineApi';
 import { Discipline } from '../models/Discipline';
 import Modal from 'react-modal';
 import Select from 'react-select';
+import SearchBar from './SearchBar';
+import FilterComponent from './FilterComponent';
 
 Modal.setAppElement('#root');
 
@@ -18,6 +20,14 @@ export default function ContestantTable() {
     const [loading, setLoading] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [contestantToDelete, setContestantToDelete] = useState<Contestant | null>(null);
+
+    // SEARCH
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredContestants, setFilteredContestants] = useState<Contestant[]>([]);
+
+    // FILTER
+    const [filters, setFilters] = useState({ sex: '', age: 0, club: '', discipline: '' });
+    const [sortCriteria, setSortCriteria] = useState('');
 
     useEffect(() => {
         const fetchContestants = async () => {
@@ -42,6 +52,34 @@ export default function ContestantTable() {
         };
         fetchDisciplines();
       }, []);
+
+    // FILTER AND SEARCH
+    useEffect(() => {
+      let result = contestants;
+
+      if (searchTerm) {
+          result = result.filter(contestant =>
+              contestant.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+      }
+
+      if (filters.sex) {
+          result = result.filter(contestant => contestant.sex === filters.sex);
+      }
+      if (filters.age > 0) {
+          result = result.filter(contestant => contestant.age === filters.age);
+      }
+      if (filters.club) {
+          result = result.filter(contestant => contestant.club.toLowerCase().includes(filters.club.toLowerCase()));
+      }
+      if (filters.discipline) {
+          result = result.filter(contestant =>
+              contestant.disciplines.some(d => d.name.toLowerCase() === filters.discipline.toLowerCase())
+          );
+      }
+
+      setFilteredContestants(result);
+    }, [searchTerm, contestants, filters]);
 
     const getContestant = async (id: number) => {
         try {
@@ -129,12 +167,23 @@ export default function ContestantTable() {
         setFormContestant({ id: 0, name: "", age: 0, club:'', sex:'', disciplines: []});
       };
 
+      const handleFilterChange = (newFilters: typeof filters) => {
+        setFilters(newFilters);
+      };
+      
+      const handleSortChange = (newSortCriteria: string) => {
+        setSortCriteria(newSortCriteria);
+      };
+
     return (
         <div>
             <h2>Deltagere</h2>
             <div>
                 <button onClick={openCreateForm}>Opret Deltager</button>
             </div>
+            <SearchBar onSearch={setSearchTerm} />
+            <br />
+            <FilterComponent onFilterChange={handleFilterChange} onSortChange={handleSortChange} />
             <br />
             {/* MANGLER SØGE FUNKTIONALITET ! */}
             {/* MANGLER FILTRERING / SORTERING ! */}
@@ -213,7 +262,7 @@ export default function ContestantTable() {
                     </tr>
                 </thead>
                 <tbody>
-                    {contestants.map(contestant => (
+                    {filteredContestants.map(contestant => (
                         <tr key={contestant.id}>
                             <td>{contestant.id}</td>
                             <td>{contestant.name}</td>

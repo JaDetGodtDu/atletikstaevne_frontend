@@ -6,6 +6,7 @@ import { getAllDisciplines } from '../services/api/disciplineApi';
 
 import Select from 'react-select';
 import Modal from 'react-modal';
+import SearchBar from './SearchBar';
 
 Modal.setAppElement('#root');
 
@@ -21,24 +22,28 @@ export default function ResultTable() {
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [resultToDelete, setResultToDelete] = useState<Result | null>(null);
 
+    // SEARCH
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredResults, setFilteredResults] = useState<Result[]>([]);
 
+    
     useEffect(() => {
         const fetchResults = async () => {
             setLoading(true);
-          try {
-            const data = await getAllResults();
-
-            const parsedData = data.map((result:Result)=> ({
+            try {
+                const data = await getAllResults();
+                
+                const parsedData = data.map((result:Result)=> ({
                 ...result,
                 date: new Date(result.date),
             }));
 
             setResults(parsedData);
           } catch (error) {
-            console.error(error);
+              console.error(error);
           } finally {
-            setLoading(false);
-          }
+              setLoading(false);
+            }
         }
         const fetchDisciplines = async () => {
             try {
@@ -49,8 +54,17 @@ export default function ResultTable() {
             }
         }
         fetchResults();
+
         fetchDisciplines();
     }, []);
+
+    // SEARCH
+    useEffect(() => {
+        const filtered = results.filter(result=>
+            result.contestant.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        setFilteredResults(filtered);
+    }, [searchTerm, results]);
 
     const getResult = async (id: number) => {
         try {
@@ -138,12 +152,25 @@ export default function ResultTable() {
         setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age:0, sex:"", disciplines:[] }, date: new Date() });
     }
 
+    // Unit definition for result type
+    function getUnitForResultType(resultType: string): string {
+        resultType = resultType.toLowerCase();
+        const typeToUnitMap: { [key: string]: string } = {
+            afstand: 'm',
+            tid: 's',
+            points: 'points',
+        };
+    
+        return typeToUnitMap[resultType] || ''; 
+    }
+
     return (
         <div>
             <h2>Resultater</h2>
             <div>
                 <button onClick={openCreateForm}>Opret Resultat</button>
             </div>
+            <SearchBar onSearch={setSearchTerm} />
             <br />
             <Modal isOpen={isFormOpen} onRequestClose={closeModal} contentLabel="Result Form" className="modal" overlayClassName="overlay">
                 <form onSubmit={handleSubmit}>
@@ -233,10 +260,10 @@ export default function ResultTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {results.map(result => (
+                        {filteredResults.map(result => (
                             <tr key={result.id}>
                                 <td>{result.id}</td>
-                                <td>{result.resultValue}</td>
+                                <td>{`${result.resultValue} ${getUnitForResultType(result.resultType)}`}</td>
                                 <td>{result.resultType}</td>
                                 {/* <td>{result.date.toISOString().split('T')[0]}</td> */}
                                 <td>
