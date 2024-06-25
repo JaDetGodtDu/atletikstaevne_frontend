@@ -3,9 +3,11 @@ import { getAllContestants } from '../services/api/contestantApi';
 import { Contestant } from '../models/Contestant';
 import { getAllDisciplines } from '../services/api/disciplineApi';
 import { Discipline } from '../models/Discipline';
+import { calculateAge, calculateAgeGroup } from '../services/calculators';
+
 
 interface FilterComponentProps {
-  onFilterChange: (filter: { sex: string; club: string; discipline: string;}) => void;
+  onFilterChange: (filter: { sex: string; club: string; discipline: string; ageGroup: string}) => void;
   // onSortChange?: (criteria: string) => void; -- WILL MAYBE ADD SORTING LATER --
 }
 
@@ -15,6 +17,7 @@ const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
   const [club, setClub] = useState('');
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [discipline, setDiscipline] = useState('');
+  const [ageGroup, setAgeGroup] = useState('');
 
   useEffect(() => {
     getAllContestants().then(setContestants);
@@ -24,9 +27,10 @@ const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
   const uniqueSexes = [...new Set(contestants.map(contestant => contestant.sex))];
   const uniqueClubs = [...new Set(contestants.map(contestant => contestant.club))];
   const uniqueDisciplines = [...new Set(disciplines.flatMap(discipline => discipline.name))];
+  const uniqueAgeGroups = [...new Set(contestants.map(contestant => calculateAgeGroup(calculateAge(new Date(contestant.age)))))] 
 
   const handleFilterChange = () => {
-    onFilterChange({ sex, club, discipline});
+    onFilterChange({ sex, club, discipline, ageGroup});
   };
 
   return (
@@ -49,6 +53,12 @@ const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
         <option value="">Intet køn valgt</option>
         {uniqueSexes.map(sex => (
           <option key={sex} value={sex}>{sex}</option>
+        ))}
+      </select>
+      <select onChange={(e) => setAgeGroup(e.target.value)} value={ageGroup}>
+        <option value="">Ingen aldersgruppe valgt</option>
+        {uniqueAgeGroups.map((group, index) => (
+          <option key={index} value={group}>{group}</option>
         ))}
       </select>
       <button onClick={handleFilterChange}>Filtrér</button>

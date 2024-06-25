@@ -7,6 +7,7 @@ import Modal from 'react-modal';
 import Select from 'react-select';
 import SearchBar from './SearchBar';
 import FilterComponent from './FilterComponent';
+import { calculateAge, calculateAgeGroup } from '../services/calculators';
 
 Modal.setAppElement('#root');
 
@@ -14,7 +15,7 @@ export default function ContestantTable() {
     const [disciplines, setDisciplines] = useState<Discipline[]>([]);
 
     const [contestants, setContestants] = useState<Contestant[]>([]);
-    const [formContestant, setFormContestant] = useState<Contestant>({ id: 0, name: "", age: 0, club:'',sex:'', disciplines: []});
+    const [formContestant, setFormContestant] = useState<Contestant>({ id: 0, name: "", age: new Date(), club:'',sex:'', disciplines: []});
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [creating, setCreating] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function ContestantTable() {
     const [filteredContestants, setFilteredContestants] = useState<Contestant[]>([]);
 
     // FILTER
-    const [filters, setFilters] = useState({ sex: '', club: '', discipline: '' });
+    const [filters, setFilters] = useState({ sex: '', club: '', discipline: '', ageGroup: ''});
 
     useEffect(() => {
         const fetchContestants = async () => {
@@ -73,7 +74,13 @@ export default function ContestantTable() {
               contestant.disciplines.some(d => d.name.toLowerCase() === filters.discipline.toLowerCase())
           );
       }
-
+      if (filters.ageGroup) {
+          result = result.filter(contestant =>
+              calculateAgeGroup(calculateAge(new Date(contestant.age))) === filters.ageGroup
+          );
+      }
+      console.log(result);
+      
       setFilteredContestants(result);
     }, [searchTerm, contestants, filters]);
 
@@ -148,22 +155,34 @@ export default function ContestantTable() {
         } else {
           updateContestant(formContestant.id, formContestant);
         }
-        setFormContestant({ id: 0, name: "", age: 0, club:'', sex:'', disciplines: []});
+        setFormContestant({ id: 0, name: "", age: new Date(), club:'', sex:'', disciplines: []});
       };
     
       const openCreateForm = () => {
         setCreating(true);
-        setFormContestant({ id: 0, name: "", age: 0, club:'', sex:'', disciplines: []});
+        setFormContestant({ id: 0, name: "", age: new Date(), club:'', sex:'', disciplines: []});
         setIsFormOpen(true);
       };
     
       const closeModal = () => {
         setIsFormOpen(false);
-        setFormContestant({ id: 0, name: "", age: 0, club:'', sex:'', disciplines: []});
+        setFormContestant({ id: 0, name: "", age: new Date(), club:'', sex:'', disciplines: []});
       };
 
       const handleFilterChange = (newFilters: typeof filters) => {
         setFilters(newFilters);
+        applyFilters();
+      };
+      const applyFilters = () => {
+        let filtered = contestants;
+      
+        // Apply each filter, checking if the filter is not empty before applying
+        if (filters.sex) {
+          filtered = filtered.filter(contestant => contestant.sex === filters.sex);
+        }
+        // Repeat for other filters, including a special case for ageGroup
+      
+        setFilteredContestants(filtered); // Assuming this is the state that controls what is displayed
       };
 
     return (
@@ -186,9 +205,9 @@ export default function ContestantTable() {
             placeholder="Navn" 
             required />
           <input
-            type="number"
-            value={formContestant.age}
-            onChange={(e) => setFormContestant({ ...formContestant, age: parseInt(e.target.value) })}
+            type="date"
+            value={formContestant.age.toISOString().split('T')[0]}
+            onChange={(e) => setFormContestant({ ...formContestant, age: new Date(e.target.value) })}
             placeholder="Alder"
             required
           />
@@ -255,7 +274,30 @@ export default function ContestantTable() {
                         <tr key={contestant.id}>
                             <td>{contestant.id}</td>
                             <td>{contestant.name}</td>
-                            <td>{contestant.age}</td>
+                            {/* <td>{contestant.age}</td> */}
+                            {/* <td>{((new Date()).getFullYear() - contestant.age.getFullYear())}</td> */}
+                            {/* <td>
+                              {
+                                ((new Date()).getFullYear() - contestant.age.getFullYear()) - 
+                                (((new Date()).getMonth() > contestant.age.getMonth() || 
+                                  ((new Date()).getMonth() === contestant.age.getMonth() && (new Date()).getDate() >= contestant.age.getDate())) ? 0 : 1)
+                              }
+                            </td> */}
+                            <td>
+                              {
+                                (() => {
+                                  const ageDate = new Date(contestant.age);
+                                  const currentYear = new Date().getFullYear();
+                                  const birthYear = ageDate.getFullYear();
+                                  const ageThisYear = currentYear - birthYear;
+                                  const hasHadBirthdayThisYear =
+                                    (new Date().getMonth() > ageDate.getMonth()) ||
+                                    (new Date().getMonth() === ageDate.getMonth() && new Date().getDate() >= ageDate.getDate());
+
+                                  return ageThisYear - (hasHadBirthdayThisYear ? 0 : 1);
+                                })()
+                              }
+                            </td>
                             <td>{contestant.club}</td>
                             <td>{contestant.sex}</td>
                             <td>

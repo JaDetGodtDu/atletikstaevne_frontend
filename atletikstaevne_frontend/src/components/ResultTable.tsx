@@ -14,7 +14,7 @@ export default function ResultTable() {
     console.log('ResultTable');
     const [disciplines, setDisciplines] = useState<Discipline[]>([]);
     const [results, setResults] = useState<Result[]>([]);
-    const [formResult, setFormResult] = useState<Result>({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age:0, sex:"", disciplines:[] }, date: new Date() });
+    const [formResult, setFormResult] = useState<Result>({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age: new Date(), sex:"", disciplines:[] }, date: new Date() });
 
     const [loading, setLoading] = useState(false);
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -138,18 +138,18 @@ export default function ResultTable() {
         } else {
             updateResult(preparedResult.id, preparedResult);
         }
-        setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age:0, sex:"", disciplines:[] }, date: new Date() });
+        setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age: new Date(), sex:"", disciplines:[] }, date: new Date() });
     }
 
     const openCreateForm = () => {
         setCreating(true);
-        setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age:0, sex:"", disciplines:[] }, date: new Date() });
+        setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age: new Date(), sex:"", disciplines:[] }, date: new Date() });
         setIsFormOpen(true);
     }
 
     const closeModal = () => {
         setIsFormOpen(false);
-        setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age:0, sex:"", disciplines:[] }, date: new Date() });
+        setFormResult({ id: 0, resultValue: "", resultType:"", discipline: { id: 0, name: "", resultType: "" }, contestant: { id: 0, name: "", club: "", age: new Date(), sex:"", disciplines:[] }, date: new Date() });
     }
 
     // Unit definition for result type
