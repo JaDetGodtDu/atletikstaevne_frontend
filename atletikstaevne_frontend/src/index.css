@@ -89,9 +89,9 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-td button{
-  padding:5px;
-  margin-left:10px;
+td button {
+  padding: 5px;
+  margin-left: 10px;
   float: right;
 }
 button:hover {
