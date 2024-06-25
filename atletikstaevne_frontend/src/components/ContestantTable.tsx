@@ -26,8 +26,7 @@ export default function ContestantTable() {
     const [filteredContestants, setFilteredContestants] = useState<Contestant[]>([]);
 
     // FILTER
-    const [filters, setFilters] = useState({ sex: '', age: 0, club: '', discipline: '' });
-    const [sortCriteria, setSortCriteria] = useState('');
+    const [filters, setFilters] = useState({ sex: '', club: '', discipline: '' });
 
     useEffect(() => {
         const fetchContestants = async () => {
@@ -66,9 +65,6 @@ export default function ContestantTable() {
       if (filters.sex) {
           result = result.filter(contestant => contestant.sex === filters.sex);
       }
-      if (filters.age > 0) {
-          result = result.filter(contestant => contestant.age === filters.age);
-      }
       if (filters.club) {
           result = result.filter(contestant => contestant.club.toLowerCase().includes(filters.club.toLowerCase()));
       }
@@ -84,7 +80,6 @@ export default function ContestantTable() {
     const getContestant = async (id: number) => {
         try {
           const contestant = await getContestantById(id);
-        //   setFormContestant(contestant);
             setFormContestant({
             ...contestant,
             disciplines: contestant.disciplines.map(d => ({
@@ -170,10 +165,6 @@ export default function ContestantTable() {
       const handleFilterChange = (newFilters: typeof filters) => {
         setFilters(newFilters);
       };
-      
-      const handleSortChange = (newSortCriteria: string) => {
-        setSortCriteria(newSortCriteria);
-      };
 
     return (
         <div>
@@ -183,7 +174,7 @@ export default function ContestantTable() {
             </div>
             <SearchBar onSearch={setSearchTerm} />
             <br />
-            <FilterComponent onFilterChange={handleFilterChange} onSortChange={handleSortChange} />
+            <FilterComponent onFilterChange={handleFilterChange} />
             <br />
             {/* MANGLER SØGE FUNKTIONALITET ! */}
             {/* MANGLER FILTRERING / SORTERING ! */}
