@@ -78,9 +78,7 @@ export default function ContestantTable() {
           result = result.filter(contestant =>
               calculateAgeGroup(calculateAge(new Date(contestant.age))) === filters.ageGroup
           );
-      }
-      console.log(result);
-      
+      }      
       setFilteredContestants(result);
     }, [searchTerm, contestants, filters]);
 
@@ -89,6 +87,7 @@ export default function ContestantTable() {
           const contestant = await getContestantById(id);
             setFormContestant({
             ...contestant,
+            age: new Date(contestant.age),
             disciplines: contestant.disciplines.map(d => ({
                 id: d.id,
                 name: d.name,
@@ -106,6 +105,9 @@ export default function ContestantTable() {
       const createContestant = async (contestant: Contestant) => {
         try {
           const newContestant = await handleContestant(contestant);
+          if (newContestant) {
+            console.log('Contestant created succesfully!\nCreated contestant:', newContestant);
+          }
           setContestants([...contestants, newContestant]);
           setCreating(false);
           setIsFormOpen(false);
@@ -117,6 +119,9 @@ export default function ContestantTable() {
       const updateContestant = async (id: number, contestantToUpdate: Contestant) => {
         try {
           const updatedContestant = await handleContestant(contestantToUpdate);
+          if (updatedContestant) {
+            console.log('Contestant updated succesfully!\nUpdated contestant:', updatedContestant);           
+          }
           setContestants(contestants.map((contestant) => (contestant.id === id ? updatedContestant : contestant)));
           setIsFormOpen(false);
         } catch (error) {
@@ -171,19 +176,18 @@ export default function ContestantTable() {
 
       const handleFilterChange = (newFilters: typeof filters) => {
         setFilters(newFilters);
-        applyFilters();
+        //applyFilters();
       };
-      const applyFilters = () => {
-        let filtered = contestants;
-      
-        // Apply each filter, checking if the filter is not empty before applying
-        if (filters.sex) {
-          filtered = filtered.filter(contestant => contestant.sex === filters.sex);
-        }
-        // Repeat for other filters, including a special case for ageGroup
-      
-        setFilteredContestants(filtered); // Assuming this is the state that controls what is displayed
-      };
+      // const applyFilters = () => {
+      //   let filtered = contestants;
+      //   if (filters.sex) {
+      //     console.log('Filtering');
+          
+      //     filtered = filtered.filter(contestant => contestant.sex === filters.sex);
+      //   }
+      //   // Repeat for other filters, including a special case for ageGroup
+      //   setFilteredContestants(filtered);
+      // };
 
     return (
         <div>
@@ -197,121 +201,121 @@ export default function ContestantTable() {
             <br />
             {/* MANGLER SORTERING ! */}
             <Modal isOpen={isFormOpen} onRequestClose={closeModal} contentLabel="Contestant Form" className="modal" overlayClassName="overlay">
-        <form onSubmit={handleSubmit}>
-          <input 
-            type="text" 
-            value={formContestant.name} 
-            onChange={(e) => setFormContestant({ ...formContestant, name: e.target.value })} 
-            placeholder="Navn" 
-            required />
-          <input
-            type="date"
-            value={formContestant.age.toISOString().split('T')[0]}
-            onChange={(e) => setFormContestant({ ...formContestant, age: new Date(e.target.value) })}
-            placeholder="Alder"
-            required
-          />
-            <input
-                type="text"
-                value={formContestant.club}
-                onChange={(e) => setFormContestant({ ...formContestant, club: e.target.value })}
-                placeholder="Klub"
-                required
-            />
-            <input
-                type="text"
-                value={formContestant.sex}
-                onChange={(e) => setFormContestant({ ...formContestant, sex: e.target.value })}
-                placeholder="Køn"
-                required
-            />
-            <Select
-                isMulti
-                options={disciplines.map(d => ({ value: d.id, label: d.name,resultType:d.resultType }))}
-                value={formContestant.disciplines.map(d => ({ value: d.id, label: d.name,resultType:d.resultType }))}
-                onChange={(selected) => setFormContestant({ ...formContestant, disciplines: selected.map(s => ({ id: s.value, name: s.label, resultType:s.resultType })) })}
-                placeholder="Vælg discipliner"
-            />
-          <br />
-          <button type="button" onClick={closeModal}>
-            Afbryd
-          </button>
-          <button type="submit">{creating ? "Opret" : "Opdater"} Deltager</button>
-        </form>
-      </Modal>
-      <Modal
-        isOpen={isDeleteConfirmOpen}
-        onRequestClose={cancelDelete}
-        contentLabel="Delete Confirmation"
-        className="modal"
-        overlayClassName="overlay"
-      >
-        <p>Er du sikker på at du vil slette denne deltager?</p>
-        <p>{contestantToDelete?.name}</p>
-        <button type="button" onClick={confirmDeleteContestant}>
-          Ja
-        </button>
-        <button type="button" onClick={cancelDelete}>
-          Nej
-        </button>
-      </Modal>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-            <table className="contestantTable">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Navn</th>
-                        <th>Alder</th>
-                        <th>Klub</th>
-                        <th>Køn</th>
-                        <th>Discipliner</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredContestants.map(contestant => (
-                        <tr key={contestant.id}>
-                            <td>{contestant.id}</td>
-                            <td>{contestant.name}</td>
-                            {/* <td>{contestant.age}</td> */}
-                            {/* <td>{((new Date()).getFullYear() - contestant.age.getFullYear())}</td> */}
-                            {/* <td>
-                              {
-                                ((new Date()).getFullYear() - contestant.age.getFullYear()) - 
-                                (((new Date()).getMonth() > contestant.age.getMonth() || 
-                                  ((new Date()).getMonth() === contestant.age.getMonth() && (new Date()).getDate() >= contestant.age.getDate())) ? 0 : 1)
-                              }
-                            </td> */}
-                            <td>
-                              {
-                                (() => {
-                                  const ageDate = new Date(contestant.age);
-                                  const currentYear = new Date().getFullYear();
-                                  const birthYear = ageDate.getFullYear();
-                                  const ageThisYear = currentYear - birthYear;
-                                  const hasHadBirthdayThisYear =
-                                    (new Date().getMonth() > ageDate.getMonth()) ||
-                                    (new Date().getMonth() === ageDate.getMonth() && new Date().getDate() >= ageDate.getDate());
-
-                                  return ageThisYear - (hasHadBirthdayThisYear ? 0 : 1);
-                                })()
-                              }
-                            </td>
-                            <td>{contestant.club}</td>
-                            <td>{contestant.sex}</td>
-                            <td>
-                                {contestant.disciplines.map(discipline => discipline.name).join(', ')}
-                            </td>
-                            <td>
-                                <button onClick={() => getContestant(contestant.id)}>Opdater</button>
-                                <button onClick={() => openDeleteConfirm(contestant)}>Slet</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        )}          
-        </div>
-    );
+              <form onSubmit={handleSubmit}>
+                <input 
+                  type="text" 
+                  value={formContestant.name} 
+                  onChange={(e) => setFormContestant({ ...formContestant, name: e.target.value })} 
+                  placeholder="Navn" 
+                  required />
+                {creating && (<input
+                  type="date"
+                  value={formContestant.age.toISOString().split('T')[0]}
+                  onChange={(e) => setFormContestant({ ...formContestant, age: new Date(e.target.value) })}
+                  placeholder="Alder"
+                  required
+                />)}
+                  <input
+                      type="text"
+                      value={formContestant.club}
+                      onChange={(e) => setFormContestant({ ...formContestant, club: e.target.value })}
+                      placeholder="Klub"
+                      required
+                  />
+                  <input
+                      type="text"
+                      value={formContestant.sex}
+                      onChange={(e) => setFormContestant({ ...formContestant, sex: e.target.value })}
+                      placeholder="Køn"
+                      required
+                  />
+                  <Select
+                      isMulti
+                      options={disciplines.map(d => ({ value: d.id, label: d.name,resultType:d.resultType }))}
+                      value={formContestant.disciplines.map(d => ({ value: d.id, label: d.name,resultType:d.resultType }))}
+                      onChange={(selected) => setFormContestant({ ...formContestant, disciplines: selected.map(s => ({ id: s.value, name: s.label, resultType:s.resultType })) })}
+                      placeholder="Vælg discipliner"
+                  />
+                <br />
+                <button type="button" onClick={closeModal}>
+                  Afbryd
+                </button>
+                <button type="submit">{creating ? "Opret" : "Opdater"} Deltager</button>
+              </form>
+            </Modal>
+            <Modal
+              isOpen={isDeleteConfirmOpen}
+              onRequestClose={cancelDelete}
+              contentLabel="Delete Confirmation"
+              className="modal"
+              overlayClassName="overlay"
+            >
+              <p>Er du sikker på at du vil slette denne deltager?</p>
+              <p>{contestantToDelete?.name}</p>
+              <button type="button" onClick={confirmDeleteContestant}>
+                Ja
+              </button>
+              <button type="button" onClick={cancelDelete}>
+                Nej
+              </button>
+            </Modal>
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+                  <table className="contestantTable">
+                      <thead>
+                          <tr>
+                              <th>Id</th>
+                              <th>Navn</th>
+                              <th>Alder</th>
+                              <th>Klub</th>
+                              <th>Køn</th>
+                              <th>Discipliner</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {filteredContestants.map(contestant => (
+                              <tr key={contestant.id}>
+                                  <td>{contestant.id}</td>
+                                  <td>{contestant.name}</td>
+                                  {/* <td>{contestant.age}</td> */}
+                                  {/* <td>{((new Date()).getFullYear() - contestant.age.getFullYear())}</td> */}
+                                  {/* <td>
+                                    {
+                                      ((new Date()).getFullYear() - contestant.age.getFullYear()) - 
+                                      (((new Date()).getMonth() > contestant.age.getMonth() || 
+                                        ((new Date()).getMonth() === contestant.age.getMonth() && (new Date()).getDate() >= contestant.age.getDate())) ? 0 : 1)
+                                    }
+                                  </td> */}
+                                  <td>
+                                    {
+                                      (() => {
+                                        const ageDate = new Date(contestant.age);
+                                        const currentYear = new Date().getFullYear();
+                                        const birthYear = ageDate.getFullYear();
+                                        const ageThisYear = currentYear - birthYear;
+                                        const hasHadBirthdayThisYear =
+                                          (new Date().getMonth() > ageDate.getMonth()) ||
+                                          (new Date().getMonth() === ageDate.getMonth() && new Date().getDate() >= ageDate.getDate());
+                                      
+                                        return ageThisYear - (hasHadBirthdayThisYear ? 0 : 1);
+                                      })()
+                                    }
+                                  </td>
+                                  <td>{contestant.club}</td>
+                                  <td>{contestant.sex}</td>
+                                  <td>
+                                      {contestant.disciplines.map(discipline => discipline.name).join(', ')}
+                                  </td>
+                                  <td>
+                                      <button onClick={() => getContestant(contestant.id)}>Opdater</button>
+                                      <button onClick={() => openDeleteConfirm(contestant)}>Slet</button>
+                                  </td>
+                              </tr>
+                          ))}
+                      </tbody>
+                  </table>
+              )}          
+              </div>
+      );
 }

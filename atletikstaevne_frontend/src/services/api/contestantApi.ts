@@ -47,9 +47,12 @@ async function deleteContestant(id: number):Promise<void> {
     try{
         const options = makeOptions('DELETE', {});
         const response = await fetch(`${API_URL}/contestant/${id}`, options);
-
-        if(!response.ok){
-            throw new Error('${response.statusText}');
+        if(response.ok){
+            console.log('Contestant deleted succesfully!');
+            
+        }
+        else if(!response.ok){
+            throw new Error(`${response.statusText}`);
         }
         
     } catch (error){

@@ -5,7 +5,6 @@ import { getAllDisciplines } from '../services/api/disciplineApi';
 import { Discipline } from '../models/Discipline';
 import { calculateAge, calculateAgeGroup } from '../services/calculators';
 
-
 interface FilterComponentProps {
   onFilterChange: (filter: { sex: string; club: string; discipline: string; ageGroup: string}) => void;
   // onSortChange?: (criteria: string) => void; -- WILL MAYBE ADD SORTING LATER --
@@ -31,6 +30,15 @@ const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
 
   const handleFilterChange = () => {
     onFilterChange({ sex, club, discipline, ageGroup});
+  };
+
+  const handleResetFilters = () => {
+    setSex('');
+    setClub('');
+    setDiscipline('');
+    setAgeGroup('');
+
+    onFilterChange({ sex: '', club: '', discipline: '', ageGroup: ''});
   };
 
   return (
@@ -62,6 +70,7 @@ const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
         ))}
       </select>
       <button onClick={handleFilterChange}>Filtrér</button>
+      <button onClick={handleResetFilters}>Nulstil</button>
     </div>
   );
 };
