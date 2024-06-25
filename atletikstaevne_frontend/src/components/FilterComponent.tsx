@@ -6,14 +6,13 @@ import { Discipline } from '../models/Discipline';
 
 interface FilterComponentProps {
   onFilterChange: (filter: { sex: string; club: string; discipline: string;}) => void;
-  // onSortChange?: (criteria: string) => void;
+  // onSortChange?: (criteria: string) => void; -- WILL MAYBE ADD SORTING LATER --
 }
 
 const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [sex, setSex] = useState('');
   const [club, setClub] = useState('');
-  // const [sortCriteria, setSortCriteria] = useState('');
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [discipline, setDiscipline] = useState('');
 
@@ -24,12 +23,7 @@ const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
 
   const uniqueSexes = [...new Set(contestants.map(contestant => contestant.sex))];
   const uniqueClubs = [...new Set(contestants.map(contestant => contestant.club))];
-    const uniqueDisciplines = [...new Set(disciplines.flatMap(discipline => discipline.name))];
-
-//   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-//     setSortCriteria(e.target.value);
-//     onSortChange(e.target.value);
-//   };
+  const uniqueDisciplines = [...new Set(disciplines.flatMap(discipline => discipline.name))];
 
   const handleFilterChange = () => {
     onFilterChange({ sex, club, discipline});
@@ -40,13 +34,13 @@ const FilterComponent = ({ onFilterChange }: FilterComponentProps) => {
       <label>Filter</label>
       <br/>
       <select onChange={(e) => setDiscipline(e.target.value)} value={discipline}>
-        <option value="">Ingen disciplin</option>
+        <option value="">Ingen disciplin valgt</option>
         {uniqueDisciplines.map(disciplineName => (
           <option key={disciplineName} value={disciplineName}>{disciplineName}</option>
         ))}
       </select>
       <select onChange={(e) => setClub(e.target.value)} value={club}>
-        <option value="">Ingen klub</option>
+        <option value="">Ingen klub valgt</option>
         {uniqueClubs.map(club => (
           <option key={club} value={club}>{club}</option>
         ))}

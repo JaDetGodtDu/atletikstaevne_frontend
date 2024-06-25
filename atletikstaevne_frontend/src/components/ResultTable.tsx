@@ -265,7 +265,6 @@ export default function ResultTable() {
                                 <td>{result.id}</td>
                                 <td>{`${result.resultValue} ${getUnitForResultType(result.resultType)}`}</td>
                                 <td>{result.resultType}</td>
-                                {/* <td>{result.date.toISOString().split('T')[0]}</td> */}
                                 <td>
                                     {result.date instanceof Date
                                         ? result.date.toISOString().split('T')[0]

@@ -176,8 +176,7 @@ export default function ContestantTable() {
             <br />
             <FilterComponent onFilterChange={handleFilterChange} />
             <br />
-            {/* MANGLER SØGE FUNKTIONALITET ! */}
-            {/* MANGLER FILTRERING / SORTERING ! */}
+            {/* MANGLER SORTERING ! */}
             <Modal isOpen={isFormOpen} onRequestClose={closeModal} contentLabel="Contestant Form" className="modal" overlayClassName="overlay">
         <form onSubmit={handleSubmit}>
           <input 
@@ -207,7 +206,6 @@ export default function ContestantTable() {
                 placeholder="Køn"
                 required
             />
-            {/* TILFØJ DISCIPLINER HER ! */}
             <Select
                 isMulti
                 options={disciplines.map(d => ({ value: d.id, label: d.name,resultType:d.resultType }))}
